@@ -1,0 +1,6 @@
+train: COCO/train/images
+val: COCO/valid/images
+test: COCO/test/images
+
+nc: 1
+names: ["COCO"]

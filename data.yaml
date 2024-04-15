@@ -1,0 +1,13 @@
+train: IU/train/images
+val: IU/valid/images
+test: IU/test/images
+
+nc: 1
+names: ["IU"]
+
+roboflow:
+  workspace: hash-xkby6
+  project: iu-2
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/hash-xkby6/iu-2/dataset/1
