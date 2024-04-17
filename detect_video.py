@@ -2,8 +2,8 @@ import cv2
 from ultralytics import YOLO
 
 def detect_video(video_path):
-    model = YOLO('yolov8n.pt')  # yolo 모델 로드
-    # model = YOLO(rf"runs\detect\train\weights\best.pt") # 아이유 모델 로드
+    # model = YOLO('yolov8n.pt')  # yolo 모델 로드
+    model = YOLO(rf"runs\detect\train\weights\best.pt") # 아이유 모델 로드
     cap = cv2.VideoCapture(video_path)
 
     if not cap.isOpened():
@@ -42,8 +42,8 @@ def detect_video(video_path):
 
         cv2.imshow('show',plots)
         if cv2.waitKey(15) == ord('q') or cv2.waitKey(15) == ord('Q'): # 40프레임
-        # if cv2.waitKey(33) == ord('q') or cv2.waitKey(15) == ord('Q'): # 30프레임
-        # if cv2.waitKey(100) == ord('q') or cv2.waitKey(15) == ord('Q'): # 10프레임
+        # if cv2.waitKey(33) == ord('q') or cv2.waitKey(33) == ord('Q'): # 30프레임
+        # if cv2.waitKey(100) == ord('q') or cv2.waitKey(100) == ord('Q'): # 10프레임
             break
 
     cap.release()
