@@ -2,8 +2,8 @@ import cv2
 from ultralytics import YOLO
 
 def detect_video(video_path):
-    model = YOLO('yolov8n.pt')  # yolo 모델 로드
-    # model = YOLO(rf"runs\detect\train\weights\best.pt") # 아이유 모델 로드
+    # model = YOLO('yolov8n.pt')  # yolo 모델 로드
+    model = YOLO(rf"runs\detect\train\weights\best.pt") # 아이유 모델 로드
     cap = cv2.VideoCapture(video_path)
 
     if not cap.isOpened():
@@ -14,6 +14,8 @@ def detect_video(video_path):
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     
     # 초당 프레임 수를 계산하기 위한 변수 초기화
+    tick_count = cv2.getTickCount()
+
     tick_count = cv2.getTickCount()
 
     while True:
