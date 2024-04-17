@@ -1,13 +1,17 @@
 import cv2
 from ultralytics import YOLO
+import torch
 
 def detect_video():
-    model = YOLO('yolov8n.pt')  # yolo 모델 로드
-    # model = YOLO(rf"runs\detect\train\weights\best.pt") # 아이유 모델 로드
+    # YOLO 모델 로드
+    model = YOLO('yolov8n.pt')
     
+    # CUDA 사용 가능 여부 확인 및 모델을 GPU로 옮기기
+    print('torch.cuda.is_available()',torch.cuda.is_available())
+    if torch.cuda.is_available():
+        model = model.cuda()
     
-    
-    # 사용 가능한 카메라 목록을 확인하기
+    # 카메라 인덱스 확인
     index = 0
     arr = []
     while True:
@@ -18,37 +22,33 @@ def detect_video():
             arr.append(index)
         cap.release()
         index += 1
-
-    print("Available camera indexes:", arr)  # 사용 가능한 카메라 인덱스 출력
+    print("Available camera indexes:", arr)
     
-    
-    cap = cv2.VideoCapture(1)  # 0: 기본 카메라 , 1: usb 카메라
-
-    
-    # cap.set(cv2.CAP_PROP_FPS, 60)   # 카메라가 60 FPS를 지원하는지 확인 후 설정
-    cap.set(cv2.CAP_PROP_FPS, 30)   # 카메라가 30 FPS를 지원하는지 확인 후 설정
-
-    frame_time = int((1/30) * 1000)  # 30 FPS에 해당하는 프레임 시간 계산
+    cap = cv2.VideoCapture(1)  # USB 카메라
+    cap.set(cv2.CAP_PROP_FPS, 30)  # 카메라 FPS 설정
 
     if not cap.isOpened():
         print("Error: Could not open camera.")
         return
-
-    tick_count = cv2.getTickCount()
     
+    tick_count = cv2.getTickCount()
 
     while True:
         ret, frame = cap.read()
         if not ret:
             break
 
-        # 프레임 크기 조정 (선택적)
+        # 프레임 크기 조정
         frame = cv2.resize(frame, (1000, 800))
+
+        # GPU로 데이터 전송
+        if torch.cuda.is_available():
+            frame = torch.from_numpy(frame).permute(2, 0, 1).unsqueeze(0).float().cuda()
 
         # 프레임에 대한 예측 수행
         results = model.predict(frame)
         plots = results[0].plot()
-
+        
         # FPS 계산
         ticks_now = cv2.getTickCount()
         time_spent = (ticks_now - tick_count) / cv2.getTickFrequency()
@@ -58,7 +58,10 @@ def detect_video():
         # 화면에 FPS 표시
         cv2.putText(plots, f"FPS: {fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
+        # 화면에 결과 표시
+        plots = plots.cpu().numpy() if torch.cuda.is_available() else plots
         cv2.imshow('Detection', plots)
+
         if cv2.waitKey(1) == ord('q'):  # 'q'를 누르면 종료
             break
 
